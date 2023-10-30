@@ -1,53 +1,4 @@
 
-import pandas as pd
-import os,glob
-import subprocess
-
-samples_1=['T_01','T_02','T_03','T_04','T_05','T_06','T_07','T_08','T_09','T_10','T_11','T_13','Met_13','T_14','T_15','T_16',
-           'T_18','T_19','Met_19','T_20','Met_20_a','Met_20_b', 'T_23', 'Met_24', 'Met_25']
-
-vcf_files1=[x+".vcf" for x in samples_1 ]
-
-sample_names_1=['Sample_01_Tumour_01', 'Sample_02_Tumour_02', 'Sample_03_Tumour_03', 'Sample_04_Tumour_04', 'Sample_05_Tumour_05', 'Sample_06_Tumour_06', 
-                'Sample_07_Tumour_07', 'Sample_08_Tumour_08', 'Sample_09_Tumour_09', 'Sample_10_Tumour_10', 'Sample_11_Tumour_11', 'Sample_13_Tumour_13', 
-                'Sample_13_Met_13', 'Sample_14_Tumour_14', 'Sample_15_Tumour_15', 'Sample_16_Tumour_16', 'Sample_18_Tumour_18', 'Sample_19_Tumour_19', 
-                'Sample_19_Met_19','Sample_20_Tumour_20','Sample_20_Met_20_a','Sample_20_Met_20_b','Sample_23_Tumour_23','Sample_24_Met_24','Sample_25_Met_25']
-
-samples_1_dict=dict(zip(vcf_files1,sample_names_1))
-
-
-for vcf,name in samples_1_dict.items():
-        os.system(f'''perl /mnt/disks/sdb/VCF-Ap/vcf2maf/vcf2maf.pl --input-vcf {vcf} --output-maf {name}.maf --ref-fasta /mnt/disks/sdb/Resourses/GATK_Rsource/Homo_sapiens_assembly38.fasta --tumor-id {name} --vep-path /home/jjohn41/anaconda3/envs/mamba/bin/ --vep-data /mnt/disks/sdb/Resourses/ --ncbi-build GRCh38 ''')
-
-
-samples_2=['T_12','T_17','T_21','T_22']
-vcf_files2=[x+".vcf" for x in samples_2 ]
-sample_names_2=[['Sample_12_Normal_12','Sample_12_Tumour_12'],['Sample_17_Normal_17', 'Sample_17_Tumour_17'],['Sample_21_Normal_21','Sample_21_Tumour_21'],['Sample_22_Normal_22','Sample_22_Tumour_22']]
-
-samples_2_dict=dict(zip(vcf_files2,sample_names_2))
-
-for vcf,name in samples_2_dict.items():
-        os.system(f"sed -i 's/\\r/\\n/' {vcf}")
-        os.system(f"sed -i '/^$/d' {vcf}")
-        vep=vcf.replace(".vcf","")
-        os.system(f"rm {vep}.vep.vcf")
-        os.system(f'''perl /mnt/disks/sdb/VCF-Ap/vcf2maf/vcf2maf.pl --input-vcf {vcf} --output-maf {name[1]}.maf \
-                  --ref-fasta /mnt/disks/sdb/Resourses/GATK_Rsource/Homo_sapiens_assembly38.fasta \
-                  --tumor-id {name[1]} --normal-id {name[0]} --vep-path /home/jjohn41/anaconda3/envs/mamba/bin/ --vep-data /mnt/disks/sdb/Resourses/ --ncbi-build GRCh38 ''')
-
-
-### Control samples
-for vcf,name in samples_2_dict.items():
-        os.system(f"sed -i 's/\\r/\\n/' {vcf}")
-        os.system(f"sed -i '/^$/d' {vcf}")
-        vep=vcf.replace(".vcf","")
-        os.system(f"rm {vep}.vep.vcf")
-        os.system(f'''perl /mnt/disks/sdb/VCF-Ap/vcf2maf/vcf2maf.pl --input-vcf {vcf} --output-maf {name[0]}.maf \
-                  --ref-fasta /mnt/disks/sdb/Resourses/GATK_Rsource/Homo_sapiens_assembly38.fasta \
-                  --normal-id {name[0]} --vep-path /home/jjohn41/anaconda3/envs/mamba/bin/ --vep-data /mnt/disks/sdb/Resourses/ --ncbi-build GRCh38 ''')
-
-
-
 ### Mergee maf files
 df=pd.read_csv("Sample_13_Tumour_13.maf",sep="\t",quotechar='"',quoting=3,skiprows=1 )
 df.to_csv("Sample_13_Tumour_13.maf",sep="\t")
@@ -127,4 +78,5 @@ for group in clinical_df["Group"].unique():
       merged_2[merged_2["Group"]==group].to_csv(f"{group}_noGermline_NoCommonvariant_VAFGT0.01_LT0.4.tsv", sep = "\t",index=None)
       selected[selected["Group"]==group].to_csv(f"{group}_noGermline_NoCommonvariant_VAFGT0.01_LT0.4_SelectedGenes.tsv", sep = "\t",index=None)
       
+
 
