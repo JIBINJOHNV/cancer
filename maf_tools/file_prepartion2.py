@@ -126,6 +126,11 @@ selected.to_csv("TumorOnly_noGermline_NoCommonvariant_VAFGT0.01_LT0.4_SelectedGe
 for group in clinical_df["Group"].unique():
       merged_2[merged_2["Group"]==group].to_csv(f"{group}_noGermline_NoCommonvariant_VAFGT0.01_LT0.4.tsv", sep = "\t",index=None)
       selected[selected["Group"]==group].to_csv(f"{group}_noGermline_NoCommonvariant_VAFGT0.01_LT0.4_SelectedGenes.tsv", sep = "\t",index=None)
+
+##Split the clinical file
+for group in clinical_df["Group"].unique():
+      df=clinical_df[clinical_df["Group"]==group]
+      df.to_csv(f"{group}_clinical_details.tsv",sep="\t",index=None)
       
 
 
